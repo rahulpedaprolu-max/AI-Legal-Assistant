@@ -1,22 +1,32 @@
 from langchain_chroma import Chroma
 from rag.embedding import get_embeddings
 
+_db = None
 
-# Load the embedding model only once
-embeddings = get_embeddings()
 
-# Load Chroma only once
-db = Chroma(
-    persist_directory="vector_db",
-    embedding_function=embeddings
-)
+def get_vector_db():
+    global _db
+
+    if _db is None:
+        print("Loading Chroma vector database...")
+
+        _db = Chroma(
+            persist_directory="vector_db",
+            embedding_function=get_embeddings()
+        )
+
+        print("Chroma vector database loaded.")
+
+    return _db
 
 
 def retrieve_documents(query: str):
 
+    db = get_vector_db()
+
     results = db.similarity_search_with_score(
         query=query,
-        k=8
+        k=4
     )
 
     documents = []
@@ -30,7 +40,7 @@ def retrieve_documents(query: str):
         print(f"Source: {doc.metadata.get('source')}")
         print(f"Page: {doc.metadata.get('page_label')}")
         print("-" * 80)
-        print(doc.page_content[:700])
+        print(doc.page_content[:500])
         print("\n")
 
         documents.append(doc)

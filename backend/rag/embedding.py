@@ -1,9 +1,15 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 
+_embeddings = None
+
 def get_embeddings():
+    global _embeddings
 
-    return HuggingFaceEmbeddings(
+    if _embeddings is None:
+        print("Loading embedding model...")
+        _embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
+        print("Embedding model loaded.")
 
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-
-    )
+    return _embeddings
