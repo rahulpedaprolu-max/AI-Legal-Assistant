@@ -49,8 +49,24 @@ function QueryBox() {
       setResult(response.data);
 
     } catch (err) {
-      console.error(err);
-      alert("Unable to connect to backend.");
+      console.error("Backend Error:", err);
+
+      if (err.response) {
+        alert(
+          `Backend Error (${err.response.status})\n\n${JSON.stringify(
+            err.response.data,
+            null,
+            2
+          )}`
+        );
+      } else if (err.request) {
+        alert(
+          "Unable to reach the backend.\n\nPlease check if the Render backend is running."
+        );
+      } else {
+        alert(err.message);
+      }
+
     } finally {
       setLoading(false);
       setLoadingStep("");
@@ -58,7 +74,7 @@ function QueryBox() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto mt-14 px-6">
+    <div className="max-w-6xl mx-auto mt-12 px-6">
 
       <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 p-10">
 
@@ -68,16 +84,15 @@ function QueryBox() {
 
         <p className="text-center text-gray-500 mt-3 mb-8">
           Explain your issue in simple language.
-          Our AI will retrieve relevant Indian laws,
+          Our AI retrieves relevant Indian laws,
           procedures and supporting references.
         </p>
 
         <textarea
-          rows="8"
+          rows={8}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Example:
-My employer has not paid my salary for three months despite repeated reminders..."
+          placeholder="Example: My employer has not paid my salary for three months despite repeated reminders..."
           className="w-full rounded-2xl border-2 border-gray-300 p-5 text-lg resize-none focus:border-blue-600 focus:outline-none"
         />
 
@@ -95,14 +110,10 @@ My employer has not paid my salary for three months despite repeated reminders..
           />
 
           {selectedFile && (
-
             <div className="mt-3 bg-green-100 border border-green-300 rounded-xl p-3">
-
               ✅ Selected File:
               <strong> {selectedFile.name}</strong>
-
             </div>
-
           )}
 
         </div>
@@ -114,44 +125,31 @@ My employer has not paid my salary for three months despite repeated reminders..
             disabled={loading}
             className="bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white text-xl font-bold px-10 py-4 rounded-2xl shadow-lg transition duration-300 disabled:bg-gray-400"
           >
-
-            {loading
-              ? "Analyzing..."
-              : "🔍 Analyze Case"}
-
+            {loading ? "Analyzing..." : "🔍 Analyze Case"}
           </button>
 
         </div>
-        {loading && (
 
+        {loading && (
           <div className="mt-10 bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center animate-pulse">
 
             <h3 className="text-2xl font-bold text-blue-700">
-
               🤖 AI is analyzing your case...
-
             </h3>
 
             <p className="mt-5 text-lg text-gray-700">
-
               {loadingStep}
-
             </p>
 
             <div className="w-full bg-gray-300 rounded-full h-4 mt-8 overflow-hidden">
-
               <div className="bg-blue-700 h-4 rounded-full animate-pulse w-3/4"></div>
-
             </div>
 
             <p className="mt-6 text-gray-500">
-
               This usually takes a few seconds.
-
             </p>
 
           </div>
-
         )}
 
       </div>
@@ -179,6 +177,7 @@ My employer has not paid my salary for three months despite repeated reminders..
             title="📂 Required Documents"
             items={result.documents}
           />
+
           {result.sources && result.sources.length > 0 && (
 
             <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
@@ -194,8 +193,7 @@ My employer has not paid my salary for three months despite repeated reminders..
               </div>
 
               <p className="text-gray-500 mb-6">
-                The following legal documents were retrieved by the RAG system
-                while generating this response.
+                The following legal documents were retrieved by the RAG system while generating this response.
               </p>
 
               <div className="grid md:grid-cols-2 gap-5">
@@ -204,19 +202,15 @@ My employer has not paid my salary for three months despite repeated reminders..
 
                   <div
                     key={index}
-                    className="bg-blue-50 border border-blue-200 rounded-2xl p-5 hover:shadow-lg transition duration-300"
+                    className="bg-blue-50 border border-blue-200 rounded-2xl p-5 hover:shadow-lg transition"
                   >
 
                     <h3 className="text-xl font-bold text-blue-800 mb-3">
-
                       📄 {source.document}
-
                     </h3>
 
                     <p className="text-gray-700">
-
                       <strong>📑 Page:</strong> {source.page}
-
                     </p>
 
                   </div>
