@@ -2,12 +2,17 @@ from langchain_chroma import Chroma
 from rag.embedding import get_embeddings
 
 
-def retrieve_documents(query: str):
+# Load the embedding model only once
+embeddings = get_embeddings()
 
-    db = Chroma(
-        persist_directory="vector_db",
-        embedding_function=get_embeddings()
-    )
+# Load Chroma only once
+db = Chroma(
+    persist_directory="vector_db",
+    embedding_function=embeddings
+)
+
+
+def retrieve_documents(query: str):
 
     results = db.similarity_search_with_score(
         query=query,
