@@ -2,46 +2,42 @@ function ExampleQueries() {
 
   const examples = [
 
-    "Employer not paying salary",
+    "My employer has not paid my salary.",
 
-    "Landlord refusing deposit",
+    "Someone stole my bike.",
 
-    "Cheque bounced",
+    "My landlord is not returning my deposit.",
 
-    "Property dispute",
+    "I received a fake UPI payment request.",
 
-    "Cyber fraud"
+    "Amazon refused my refund."
 
   ];
 
   return (
 
-    <div className="max-w-4xl mx-auto mt-10">
+    <div className="max-w-6xl mx-auto mt-12">
 
-      <h2 className="text-xl font-semibold mb-4">
+      <h2 className="text-2xl font-bold mb-5">
 
-        Example Queries
+        💡 Try These Example Queries
 
       </h2>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
 
-        {
+        {examples.map((q,index)=>(
 
-          examples.map((item, index) => (
+          <div
+            key={index}
+            className="bg-white shadow rounded-xl p-4"
+          >
 
-            <div
-              key={index}
-              className="border p-4 rounded-lg cursor-pointer hover:bg-gray-100"
-            >
+            {q}
 
-              {item}
+          </div>
 
-            </div>
-
-          ))
-
-        }
+        ))}
 
       </div>
 

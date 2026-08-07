@@ -6,6 +6,7 @@ function QueryBox() {
   const [query, setQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState("");
   const [result, setResult] = useState(null);
 
   const analyzeCase = async () => {
@@ -16,6 +17,9 @@ function QueryBox() {
 
     try {
       setLoading(true);
+      setResult(null);
+
+      setLoadingStep("🔍 Searching legal documents...");
 
       const formData = new FormData();
       formData.append("query", query);
@@ -23,6 +27,14 @@ function QueryBox() {
       if (selectedFile) {
         formData.append("file", selectedFile);
       }
+
+      setTimeout(() => {
+        setLoadingStep("⚖ Retrieving relevant law sections...");
+      }, 1000);
+
+      setTimeout(() => {
+        setLoadingStep("🤖 Generating AI legal guidance...");
+      }, 2200);
 
       const response = await api.post(
         "/analyze-case",
@@ -35,76 +47,121 @@ function QueryBox() {
       );
 
       setResult(response.data);
-    } catch (error) {
-      console.error(error);
+
+    } catch (err) {
+      console.error(err);
       alert("Unable to connect to backend.");
     } finally {
       setLoading(false);
+      setLoadingStep("");
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 px-4">
+    <div className="max-w-6xl mx-auto mt-14 px-6">
 
-      <div className="bg-white shadow-xl rounded-3xl p-8">
+      <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 p-10">
 
-        <h2 className="text-3xl font-bold mb-6 text-center">
-          Describe Your Legal Issue
+        <h2 className="text-4xl font-bold text-center text-slate-800">
+          📝 Describe Your Legal Issue
         </h2>
+
+        <p className="text-center text-gray-500 mt-3 mb-8">
+          Explain your issue in simple language.
+          Our AI will retrieve relevant Indian laws,
+          procedures and supporting references.
+        </p>
 
         <textarea
           rows="8"
-          className="w-full border rounded-xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Example: My employer has not paid my salary for 3 months..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          placeholder="Example:
+My employer has not paid my salary for three months despite repeated reminders..."
+          className="w-full rounded-2xl border-2 border-gray-300 p-5 text-lg resize-none focus:border-blue-600 focus:outline-none"
         />
 
-        <div className="mt-6">
+        <div className="mt-8">
 
-          <label className="block font-semibold mb-2">
-            Upload Supporting Document (Optional)
+          <label className="block text-lg font-semibold mb-3">
+            📎 Upload Supporting Document (Optional)
           </label>
 
           <input
             type="file"
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             onChange={(e) => setSelectedFile(e.target.files[0])}
-            className="w-full border rounded-lg p-2"
+            className="w-full border rounded-xl p-3"
           />
 
           {selectedFile && (
-            <p className="text-green-600 mt-2">
-              Selected File: {selectedFile.name}
-            </p>
+
+            <div className="mt-3 bg-green-100 border border-green-300 rounded-xl p-3">
+
+              ✅ Selected File:
+              <strong> {selectedFile.name}</strong>
+
+            </div>
+
           )}
 
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="text-center mt-10">
 
           <button
             onClick={analyzeCase}
             disabled={loading}
-            className={`px-8 py-3 rounded-xl text-white text-lg font-semibold transition ${
-              loading
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-blue-700 hover:bg-blue-800"
-            }`}
+            className="bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white text-xl font-bold px-10 py-4 rounded-2xl shadow-lg transition duration-300 disabled:bg-gray-400"
           >
-            {loading ? "Analyzing..." : "Analyze Case"}
+
+            {loading
+              ? "Analyzing..."
+              : "🔍 Analyze Case"}
+
           </button>
 
         </div>
+        {loading && (
+
+          <div className="mt-10 bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center animate-pulse">
+
+            <h3 className="text-2xl font-bold text-blue-700">
+
+              🤖 AI is analyzing your case...
+
+            </h3>
+
+            <p className="mt-5 text-lg text-gray-700">
+
+              {loadingStep}
+
+            </p>
+
+            <div className="w-full bg-gray-300 rounded-full h-4 mt-8 overflow-hidden">
+
+              <div className="bg-blue-700 h-4 rounded-full animate-pulse w-3/4"></div>
+
+            </div>
+
+            <p className="mt-6 text-gray-500">
+
+              This usually takes a few seconds.
+
+            </p>
+
+          </div>
+
+        )}
 
       </div>
 
       {result && (
 
-        <div className="mt-10 space-y-6">
+        <div className="mt-12 space-y-8">
 
           <ResultCard
-            title="📄 Summary"
+            title="📄 Case Summary"
             items={[result.summary]}
           />
 
@@ -114,7 +171,7 @@ function QueryBox() {
           />
 
           <ResultCard
-            title="📝 Procedure"
+            title="📝 Step-by-Step Procedure"
             items={result.procedure}
           />
 
@@ -122,35 +179,43 @@ function QueryBox() {
             title="📂 Required Documents"
             items={result.documents}
           />
-
           {result.sources && result.sources.length > 0 && (
 
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
 
-              <h2 className="text-2xl font-bold mb-5">
-                📚 Sources
-              </h2>
+              <div className="flex items-center mb-6">
 
-              <div className="space-y-3">
+                <div className="w-2 h-10 bg-blue-700 rounded-full mr-4"></div>
+
+                <h2 className="text-3xl font-bold text-slate-800">
+                  📚 Legal Sources
+                </h2>
+
+              </div>
+
+              <p className="text-gray-500 mb-6">
+                The following legal documents were retrieved by the RAG system
+                while generating this response.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-5">
 
                 {result.sources.map((source, index) => (
 
                   <div
                     key={index}
-                    className="border rounded-xl p-4 bg-gray-100"
+                    className="bg-blue-50 border border-blue-200 rounded-2xl p-5 hover:shadow-lg transition duration-300"
                   >
 
-                    <p>
+                    <h3 className="text-xl font-bold text-blue-800 mb-3">
 
-                      <strong>Document:</strong>{" "}
-                      {source.document}
+                      📄 {source.document}
 
-                    </p>
+                    </h3>
 
-                    <p>
+                    <p className="text-gray-700">
 
-                      <strong>Page:</strong>{" "}
-                      {source.page}
+                      <strong>📑 Page:</strong> {source.page}
 
                     </p>
 
